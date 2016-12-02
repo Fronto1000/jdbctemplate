@@ -1,90 +1,77 @@
 package dao;
 
 import model.Auto;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class AutoDaoJdbcImpl implements AutoDao{
+public class AutoDaoJdbcImpl implements AutoDao {
 
     // language=SQL
     private static final String SQL_SELECT_AUTO = "SELECT * FROM auto";
     // language=SQL
-    private final String SQL_UPDATE_AUTO = "UPDATE auto SET memberid = ? WHERE id = ?";
+    private final String SQL_UPDATE_AUTO = "UPDATE auto SET memberid = :memberid; WHERE id = :id;";
     // language=SQL
-    static final String SQL_INSERT_AUTO = "INSERT INTO auto(id, model, mileage, memberid) VALUES(?, ?, ?,?)";
+    static final String SQL_INSERT_AUTO = "INSERT INTO auto(id, model, mileage, memberid) VALUES(:id;, :model;, :mileage;, :memberid;)";
     // language=SQL
-    static final String SQL_DELETE_AUTO = "DELETE FROM auto WHERE id=?";
+    static final String SQL_DELETE_AUTO = "DELETE FROM auto WHERE id=:id;";
     // language=SQL
-    static final String SQL_SELECT_AUTO_BY_MEMBER = "SELECT * FROM auto WHERE memberid =?";
+    static final String SQL_SELECT_AUTO_BY_MEMBER = "SELECT * FROM auto WHERE memberid = :memberid;";
 
-    private Connection connection;
+    private NamedParameterJdbcTemplate template;
 
-    public AutoDaoJdbcImpl(Connection connection) {
-        this.connection = connection;
+    private Map<Integer, Auto> autoMap;
+
+    public AutoDaoJdbcImpl(DataSource dataSource) {
+        template = new NamedParameterJdbcTemplate(dataSource);
+        autoMap = new HashMap<Integer, Auto>();
     }
 
-    public ArrayList<Auto> findAll() {
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(SQL_SELECT_AUTO);
-            ArrayList<Auto> resultList = new ArrayList<Auto>();
-            while (resultSet.next()){
-                Auto auto = new Auto(resultSet.getInt("id"),resultSet.getString("model"),resultSet.getInt("mileage"),resultSet.getInt("memberid"));
-                resultList.add(auto);
-            }
-            return resultList;
-        }catch (SQLException e) {
-            throw new IllegalStateException(e);
+    RowMapper<Auto> autoRowMapper = new RowMapper<Auto>() {
+        public Auto mapRow(ResultSet resultSet, int i) throws SQLException {
+            Auto auto = new Auto(resultSet.getInt("id"), resultSet.getString("model"), resultSet.getInt("mileage"), resultSet.getInt("memberid"));
+            autoMap.put(auto.getId(), auto);
+            return auto;
         }
+    };
+
+    public List<Auto> findAll() {
+        template.query(SQL_SELECT_AUTO, autoRowMapper);
+        return new ArrayList<Auto>(autoMap.values());
     }
 
     public void update(Auto auto) {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL_UPDATE_AUTO);
-            preparedStatement.setInt(1, auto.getMemberId());
-            preparedStatement.setInt(2, auto.getId());
-            preparedStatement.execute();
-
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
-        }
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("memberid", auto.getMemberId());
+        params.put("id", auto.getId());
+        template.update(SQL_UPDATE_AUTO,params);
     }
 
     public void save(Auto auto) {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT_AUTO);
-            preparedStatement.setInt(1, auto.getId());
-            preparedStatement.setString(2, auto.getModel());
-            preparedStatement.setInt(3, auto.getMileage());
-            preparedStatement.setInt(4,auto.getMemberId());
-            preparedStatement.execute();
-
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
-        }
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("id", auto.getId());
+        params.put("model", auto.getModel());
+        params.put("mileage", auto.getMileage());
+        params.put("memberid", auto.getMemberId());
+        template.update(SQL_INSERT_AUTO,params);
     }
 
     public Auto find(int memberid) {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_AUTO_BY_MEMBER);
-            preparedStatement.setInt(1, memberid);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            resultSet.next();
-            return  new Auto(resultSet.getInt("id"),resultSet.getString("model"),resultSet.getInt("mileage"),resultSet.getInt("memberid"));
-        }catch (SQLException e) {
-            throw new IllegalStateException(e);
-        }
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("memberid", memberid);
+        return template.queryForObject(SQL_SELECT_AUTO_BY_MEMBER, params, autoRowMapper);
     }
 
     public void delete(int id) {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL_DELETE_AUTO);
-            preparedStatement.setInt(1, id);
-            preparedStatement.execute();
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
-        }
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("id", id);
+        template.update(SQL_DELETE_AUTO,params);
     }
 }
+

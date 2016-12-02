@@ -30,10 +30,15 @@ public class UserServiceImpl implements UserService {
     }
 
     public ArrayList<User> getUsersByCity(String cityName) {
-        return null;
+        return usersDao.findByCity(cityName);
     }
 
     public ArrayList<Auto> getAutoByCity(String city) {
-        return null;
+        ArrayList<User> usersByCity = usersDao.findByCity(city);
+        ArrayList<Auto> autos = new ArrayList<Auto>();
+        for (User currentUser : usersByCity) {
+            autos.add(autoDao.find(currentUser.getId()));
+        }
+        return autos;
     }
 }

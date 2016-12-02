@@ -27,7 +27,7 @@ public class ServiceFactory {
         properties = new Properties();
         try {
             properties.load(new
-                    FileInputStream("C:\\HomeWork\\JDBC\\src\\main\\resources\\application.properties"));
+                    FileInputStream("C:\\Java\\HomeWork\\jdbctemplate\\src\\main\\resources\\application.properties"));
 
             String serviceClassName = properties.getProperty("users.service.class");
             Constructor constructor = Class.forName(serviceClassName).getConstructor(UsersDao.class, AutoDao.class);

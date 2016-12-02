@@ -2,17 +2,12 @@ package factory;
 
 import dao.AutoDao;
 import dao.UsersDao;
-import model.User;
-import org.postgresql.core.ConnectionFactory;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import javax.activation.DataSource;
+import javax.sql.DataSource;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Connection;
-import java.util.Map;
 import java.util.Properties;
 
 public class DaoFactory {
@@ -27,7 +22,7 @@ public class DaoFactory {
     private DaoFactory() {
         properties = new Properties();
         try {
-            properties.load(new FileInputStream("C:\\HomeWork\\JDBC\\src\\main\\resources\\application.properties"));
+            properties.load(new FileInputStream("C:\\Java\\HomeWork\\jdbctemplate\\src\\main\\resources\\application.properties"));
             String daoUserClassName = properties.getProperty("users.dao.class");
             String daoAutoClassName = properties.getProperty("auto.dao.class");
             Constructor constructorUser = Class.forName(daoUserClassName).getConstructor(DataSource.class);

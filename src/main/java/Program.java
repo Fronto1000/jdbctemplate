@@ -12,6 +12,7 @@ public class Program {
     public static void main(String[] args){
         UserService userService = ServiceFactory.getInstance().getUserService();
         UsersDao usersDao = DaoFactory.getInstance().getUsersDao();
+        AutoDao autoDao = DaoFactory.getInstance().getAutoDao();
         //usersDao.delete(5);
         //usersDao.update(new User(6,"Yura",26,"Moscow"));
 //        AutoDao autoDao = DaoFactory.getInstance().getAutoDao();
@@ -22,11 +23,11 @@ public class Program {
 //        for (User user:users) {
 //            System.out.println(user);
 //        }
-        ArrayList<Auto> autos =  userService.getAutoByCity("Moscow");
+        ArrayList<Auto> autos =  userService.getAutoByCity("Kazan");
         for (Auto car:autos) {
             System.out.println(car);
         }
-        boolean isRegistered = userService.isRegistered("Alex");
+        boolean isRegistered = userService.isRegistered("Ivan");
         System.out.println(isRegistered);
     }
 }

@@ -4,21 +4,23 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 public class Auto {
-    private Long id;
+    private int id;
     private String model;
-    private User owner;
+    private int mileage;
+    private int memberid;
 
-    public Auto(Long id, String model, User owner) {
+    public Auto(int id, String model, int mileage, int memberId) {
         this.id = id;
         this.model = model;
-        this.owner = owner;
+        this.mileage = mileage;
+        this.memberid = memberId;
     }
 
-    public Long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -30,11 +32,50 @@ public class Auto {
         this.model = model;
     }
 
-    public User getOwner() {
-        return owner;
+    public int getMileage() {
+        return mileage;
     }
 
-    public void setOwner(User owner) {
-        this.owner = owner;
+    public void setMileage(int mileage) {
+        this.mileage = mileage;
+    }
+
+    public int getMemberId() {
+        return memberid;
+    }
+
+    public void setMemberId(int memberId) {
+        this.memberid = memberId;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id",this.id)
+                .add("model",this.model)
+                .add("mileage",this.mileage)
+                .add("memberId",this.memberid).toString();
+
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o == null || !o.getClass().getName().equals(this.getClass().getName())) {
+            return false;
+        }
+        Auto auto = (Auto)o;
+        return Objects.equal(this.id,auto.id) &&
+                Objects.equal(this.id,auto.id) &&
+                Objects.equal(this.id,auto.id) &&
+                Objects.equal(this.id,auto.id);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + (model != null ? model.hashCode() : 0);
+        result = 31 * result + mileage;
+        result = 31 * result + memberid;
+        return result;
     }
 }
